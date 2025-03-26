@@ -20,6 +20,18 @@ document.addEventListener('keydown', (event)=>{
         case 'ArrowRight':
             player.move(1,0);
         break;
+        case 'w':
+            shootAt(player.x, player.y - 1);
+        break;
+        case 's':
+            shootAt(player.x, player.y + 1);
+        break;
+        case 'a':
+            shootAt(player.x - 1, player.y);
+        break;
+        case 'd':
+            shootAt(player.x + 1, player.y);
+        break;
     }
     event.preventDefault();
 });
@@ -51,7 +63,7 @@ function generateRandomBoard(){
     player.y = playerY;
 
     //LUODAAN VIHOLLINEN
-    for(let i = 0; i < 296; i++){
+    for(let i = 0; i < 6; i++){
         const[ghostX, ghostY] = randomEmptyPosition(newBoard);
         setCell(newBoard,ghostX, ghostY, 'G');
         ghosts.push(new Ghost(ghostX, ghostY));
@@ -81,6 +93,11 @@ function drawBoard(board){
                 cell.classList.add('player');
             }else if(getCell(board,x,y) === 'G'){
                 cell.classList.add('ghost');
+            }else if(getCell(board,x,y) === 'B'){
+                cell.classList.add('bullet');
+                setTimeout(()=>{
+                    setCell(board,x,y,'');
+                }, 500);
             }
             
 
@@ -147,8 +164,22 @@ function setCell(board,x,y,value){
 }
 
 function shootAt(x,y){
+    if(getCell(board,x,y) === 'W'){
+        return;
+    }
+
+    const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y ===y);
+
+    if(ghostIndex !== -1){
+        ghosts.splice(ghostIndex,1);
+    }
+
     setCell(board,x,y,'B');
     drawBoard(board);
+
+    if(ghosts.length === 0){
+        alert('Läpäisit tason!');
+    }
 }
 
 class Player{
@@ -180,5 +211,18 @@ class Ghost{
     constructor(x,y){
         this.x = x;
         this.y = y;
+    }
+
+    moveGhostTowardsPlayer(player,board){
+        let dx = player.x - this.x;
+        let dy = player.y - this.y;
+
+        let moves = [];
+
+        if(Math.abs(dx)> Math.abs(dy)){
+            if(dx > 0) moves.push({x: this.x + 1, y: this.y});
+            else moves.push({x: this.x - 1, y: this.y});
+
+        }
     }
 }
