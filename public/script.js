@@ -3,6 +3,7 @@ const cellSize = calculateCellSize();
 let board;
 let player;
 let ghosts = [];
+let ghostSpeed = 1000;
 
 document.getElementById('new-game-btn').addEventListener('click',startGame);
 
@@ -43,6 +44,7 @@ function startGame(){
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
+    setInterval(moveGhosts,ghostSpeed);
 }
 
 function generateRandomBoard(){
@@ -63,7 +65,7 @@ function generateRandomBoard(){
     player.y = playerY;
 
     //LUODAAN VIHOLLINEN
-    for(let i = 0; i < 6; i++){
+    for(let i = 0; i < 7; i++){
         const[ghostX, ghostY] = randomEmptyPosition(newBoard);
         setCell(newBoard,ghostX, ghostY, 'G');
         ghosts.push(new Ghost(ghostX, ghostY));
@@ -182,6 +184,17 @@ function shootAt(x,y){
     }
 }
 
+function moveGhosts(){
+    ghosts.forEach(ghost =>{
+        const newPosition = ghost.moveGhostTowardsPlayer(player,board);
+        ghost.x = newPosition.x;
+        ghost.y = newPosition.y;
+
+        setCell(board,ghost.x, ghost.y,'G');
+        drawBoard(board);
+    });
+}
+
 class Player{
     constructor(x,y){
         this.x = x;
@@ -222,7 +235,26 @@ class Ghost{
         if(Math.abs(dx)> Math.abs(dy)){
             if(dx > 0) moves.push({x: this.x + 1, y: this.y});
             else moves.push({x: this.x - 1, y: this.y});
-
+            
+            if(dy > 0) moves.push({x:this.x, y:this.y +1})
+                else moves.push({x:this.x, y:this.y -1})
         }
+        else{
+       
+            if(dy > 0) moves.push({x:this.x, y:this.y +1})
+            else moves.push({x:this.x, y:this.y -1})
+
+             if(dx > 0) moves.push({x: this.x + 1, y: this.y});
+            else moves.push({x: this.x - 1, y: this.y});
+            
+        }
+
+        for (let move of moves){
+            const value = getCell(board,move.x, move.y);
+            if(value === '' || value === 'P'){
+                return move;
+            }
+        }
+        return{x:this.x, y:this.y};
     }
 }
