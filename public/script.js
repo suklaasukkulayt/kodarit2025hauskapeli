@@ -4,10 +4,15 @@ let board;
 let player;
 let ghosts = [];
 let ghostSpeed = 1000;
+let isGameRunning = false;
+let ghostInterval;
 
 document.getElementById('new-game-btn').addEventListener('click',startGame);
 
 document.addEventListener('keydown', (event)=>{
+    if(isGameRunning === false){
+        return;
+    }
     switch(event.key){
         case 'ArrowUp':
             player.move(0,-1);
@@ -44,7 +49,8 @@ function startGame(){
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
-    setInterval(moveGhosts,ghostSpeed);
+    ghostInterval = setInterval(moveGhosts,ghostSpeed);
+    isGameRunning = true;
 }
 
 function generateRandomBoard(){
@@ -185,14 +191,36 @@ function shootAt(x,y){
 }
 
 function moveGhosts(){
+    const oldGhosts = ghosts.map(ghost=>({x:ghost.x, y:ghost.y}));
+
     ghosts.forEach(ghost =>{
-        const newPosition = ghost.moveGhostTowardsPlayer(player,board);
+        const newPosition = ghost.moveGhostTowardsPlayer(player,board, oldGhosts);
         ghost.x = newPosition.x;
         ghost.y = newPosition.y;
 
         setCell(board,ghost.x, ghost.y,'G');
+
+        oldGhosts.forEach(ghost =>{
+            setCell(board,ghost.x,ghost.y,'');
+        });
+
+        ghosts.forEach(ghost =>{
+            setCell(board,ghost.x, ghost.y,'G');
+            if(ghost.x === player.x && ghost.y === player.y){
+                endGame();
+                return;
+            }
+        });
+        
         drawBoard(board);
     });
+}
+
+function endGame(){
+    isGameRunning = false;
+    clearInterval(ghostInterval);
+    alert('Peli Ohi! Haamu sai sinut kiinni!');
+
 }
 
 class Player{
@@ -226,7 +254,7 @@ class Ghost{
         this.y = y;
     }
 
-    moveGhostTowardsPlayer(player,board){
+    moveGhostTowardsPlayer(player,board,oldGhosts){
         let dx = player.x - this.x;
         let dy = player.y - this.y;
 
@@ -251,7 +279,9 @@ class Ghost{
 
         for (let move of moves){
             const value = getCell(board,move.x, move.y);
-            if(value === '' || value === 'P'){
+            if(value === '' || value === 'P' &&
+                !oldGhosts.some(g => g.x === move.x && g.y === move.y)
+            ){
                 return move;
             }
         }
