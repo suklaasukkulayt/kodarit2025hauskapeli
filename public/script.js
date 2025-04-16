@@ -6,6 +6,7 @@ let ghosts = [];
 let ghostSpeed = 1000;
 let isGameRunning = false;
 let ghostInterval;
+let score = 0;
 
 document.getElementById('new-game-btn').addEventListener('click',startGame);
 
@@ -49,8 +50,13 @@ function startGame(){
     player = new Player(0,0);
     board = generateRandomBoard();
     drawBoard(board);
-    ghostInterval = setInterval(moveGhosts,ghostSpeed);
+    setTimeout(()=>{
+        ghostInterval = setInterval(moveGhosts,ghostSpeed);
+    }, 1000);
+
     isGameRunning = true;
+    score = 0;
+    updateScoreBoard(0);
 }
 
 function generateRandomBoard(){
@@ -69,6 +75,7 @@ function generateRandomBoard(){
     setCell(newBoard,playerX,playerY,'P');
     player.x = playerX;
     player.y = playerY;
+    ghosts = [];
 
     //LUODAAN VIHOLLINEN
     for(let i = 0; i < 7; i++){
@@ -180,6 +187,7 @@ function shootAt(x,y){
 
     if(ghostIndex !== -1){
         ghosts.splice(ghostIndex,1);
+        updateScoreBoard(1);
     }
 
     setCell(board,x,y,'B');
@@ -217,10 +225,25 @@ function moveGhosts(){
 }
 
 function endGame(){
-    isGameRunning = false;
+    if(isGameRunning){
+        isGameRunning = false;
+        alert('Peli Ohi! Haamu sai sinut kiinni!');
+    }
+    
     clearInterval(ghostInterval);
-    alert('Peli Ohi! Haamu sai sinut kiinni!');
+    document.getElementById('intro-screen').style.display = 'block';
+    document.getElementById('game-screen').style.display = 'none';
+}
 
+function updateScoreBoard(points){
+    const scoreBoard = document.getElementById('score-board');
+    score += points;
+
+    scoreBoard.textContent = `Pisteet: ${score}`;
+}
+
+function startNextLevel(){
+    
 }
 
 class Player{
