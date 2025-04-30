@@ -140,10 +140,9 @@ function generateObstacles(board){
         [[0,0],[0,1],[1,0],[1,1]], //Neliö
         [[0,0],[0,1],[0,2],[0,3]], //I
         [[0,0],[1,0],[2,0],[1,1]], //T
-        [[1,0],[2,0],[1,1],[0,2],[1,2]] //Z
-        [[1,0],[2,0],[0,1],[1,1]], //S ei toimi ehkä
+        [[1,0],[2,0],[1,1],[0,2],[1,2]], //Z
         [[0,0],[1,0],[1,1],[1,2]], //L
-        [[0,2],[0,1],[1,1],[2,1]] //J
+        [[0,2],[0,1],[1,1],[2,1]], //J
     ];
     const positions =[
         {startX: 2, startY: 2},
@@ -155,10 +154,12 @@ function generateObstacles(board){
         {startX: 12, startY: 5},
         {startX: 11, startY: 10},
         {startX: 16, startY: 10},
-        {startX: 13, startY: 14}
+        {startX: 13, startY: 14},
     ];
     positions.forEach(pos =>{
         const randomObstacle = obstacles[Math.floor(Math.random() * obstacles.length)];
+        console.log(randomObstacle)
+        console.log(pos)
         placeObstacle(board,randomObstacle,pos.startX,pos.startY);
     });
 }
