@@ -1,3 +1,14 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyDg9RWG8dYpLKZgRybKyYzQCdAEiIFOUTI",
+    authDomain: "haamupeli-25320.firebaseapp.com",
+    projectId: "haamupeli-25320",
+    storageBucket: "haamupeli-25320.firebasestorage.app",
+    messagingSenderId: "627938803613",
+    appId: "1:627938803613:web:05ca11d86ff43aeeedf974"
+  };
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 const BOARD_SIZE = 20;
 const cellSize = calculateCellSize();
 let board;
@@ -10,7 +21,8 @@ let ghostCount = 5;
 let score = 0;
 
 document.getElementById('new-game-btn').addEventListener('click',startGame);
-
+document.getElementById('save-scores-btn').addEventListener('click',saveScore);
+document.getElementById('exit-btn').addEventListener('click',exitGame);
 document.addEventListener('keydown', (event)=>{
     if(isGameRunning === false){
         return;
@@ -243,8 +255,9 @@ function endGame(){
     }
     
     clearInterval(ghostInterval);
-    document.getElementById('intro-screen').style.display = 'block';
-    document.getElementById('game-screen').style.display = 'none';
+    //document.getElementById('intro-screen').style.display = 'block';
+    document.getElementById('game-over-screen').style.display = 'block';
+    //document.getElementById('game-screen').style.display = 'none';
 }
 
 function updateScoreBoard(points){
@@ -265,6 +278,27 @@ function startNextLevel(){
     setTimeout(()=>{
         ghostInterval = setInterval(moveGhosts,ghostSpeed);
     },1000);
+}
+
+
+function saveScore(){
+    const playName = document.getElementById('player-name').value;
+    if(playName.trim() === ''){
+        alert("Nimi ei voi olla tyhjä!")
+        return;
+    }
+    db.collection("scores").add({
+        name: playName,
+        score: score,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    exitGame()
+}
+
+function exitGame(){
+    document.getElementById('intro-screen').style.display = 'block';
+    document.getElementById('game-over-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'none';
 }
 
 class Player{
